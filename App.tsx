@@ -105,7 +105,7 @@ export default function App() {
   }, [visibleSnackBar]);
 
   const deleteTodo = (todo: Todo) => {
-    setDelTodo({ index: todos.findIndex((to) => todo === to), todo });
+    setDelTodo({ index: todos.findIndex((to) => todo.id === to.id), todo });
     setTodos((prevTodos) => prevTodos.filter((t) => t.id !== todo.id));
     setVisibleSnackbar(true);
   };
@@ -118,7 +118,10 @@ export default function App() {
 
   const undoTodo = (deleteTodo?: DeleteTodo) => {
     if (deleteTodo !== undefined) {
-      setTodos((prevTodos) => [...prevTodos, deleteTodo.todo]);
+      setTodos((prevTodos) => [
+        ...prevTodos.splice(deleteTodo.index, 0, deleteTodo.todo),
+        ...prevTodos,
+      ]);
     }
   };
 
