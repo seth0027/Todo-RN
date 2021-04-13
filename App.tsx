@@ -25,7 +25,7 @@ import {
   withTheme,
 } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { TodosProvider, TodosContext } from "./TodosContext";
+import { TodosContext, ActionType } from "./TodosContext";
 
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
@@ -43,52 +43,32 @@ const theme = {
   },
 };
 
-interface DeleteTodo {
-  index: number;
-  todo: Todo;
-}
-
 const chipTypes = ["All", "Incomplete", "Completed"];
 
 export default function App() {
   const [visible, setVisible] = React.useState<boolean>(false);
   const [search, setSearch] = React.useState<string>("");
-  const [todos, setTodos] = React.useState<Todo[]>([]);
-  const [searchedTodos, setSearchedTodos] = React.useState<Todo[]>([]);
+  const { state, dispatch } = React.useContext(TodosContext);
   const [showBanner, setShowBanner] = React.useState<boolean>(false);
   const [visibleSnackBar, setVisibleSnackbar] = React.useState(false);
-  const [delTodo, setDelTodo] = React.useState<DeleteTodo>();
+
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   const showDialog = () => setVisible(true);
 
   const hideDialog = () => setVisible(false);
-  const onAdd = (todo: Todo) => setTodos((prevTodos) => [...prevTodos, todo]);
+
   const onChangeSearch = (search: string) => setSearch(search);
 
   React.useEffect(() => {
-    const getBool: (arg0: Todo) => boolean = (todo) => {
-      switch (selectedIndex) {
-        case 0:
-          return true;
-
-        case 1:
-          return !todo.iscomplete;
-
-        case 2:
-          return todo.iscomplete;
-
-        default:
-          return true;
-      }
-    };
-    setSearchedTodos(
-      todos.filter(
-        (todo) =>
-          todo.textLower().includes(search.toLowerCase()) && getBool(todo)
-      )
-    );
-  }, [search, todos, selectedIndex]);
+    dispatch({
+      type: ActionType.Search,
+      search: {
+        selectedIndex,
+        search,
+      },
+    });
+  }, [search, state.todos, selectedIndex]);
 
   React.useEffect(() => {
     const out = setTimeout(
@@ -106,23 +86,14 @@ export default function App() {
   }, [visibleSnackBar]);
 
   const deleteTodo = (todo: Todo) => {
-    setDelTodo({ index: todos.findIndex((to) => todo.id === to.id), todo });
-    setTodos((prevTodos) => prevTodos.filter((t) => t.id !== todo.id));
+    dispatch({ type: ActionType.Remove, payload: todo.id });
+
     setVisibleSnackbar(true);
   };
 
   const completeTodo = (todo: Todo) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((t) => (t !== todo ? t : new Todo(t.text, true)))
-    );
-  };
-
-  const undoTodo = (deleteTodo?: DeleteTodo) => {
-    if (deleteTodo !== undefined) {
-      setTodos((prevTodos) => [
-        ...prevTodos.splice(deleteTodo.index, 0, deleteTodo.todo),
-        ...prevTodos,
-      ]);
+    if (!todo.iscomplete) {
+      dispatch({ type: ActionType.Toggle, payload: todo.id });
     }
   };
 
@@ -154,8 +125,6 @@ export default function App() {
       </Card>
     </Swipeable>
   );
-  const deleteCompleted = () =>
-    setTodos((prevTodos) => prevTodos.filter((todo) => !todo.iscomplete));
   const toggleBanner = () => setShowBanner((prevShow) => !prevShow);
   const onDismissSnackBar = () => setVisibleSnackbar(false);
   return (
@@ -173,21 +142,23 @@ export default function App() {
         visible={showBanner}
         icon="progress-check"
         actions={
-          todos.filter((todo) => todo.iscomplete).length > 0
+          state.todos.filter((todo) => todo.iscomplete).length > 0
             ? [
                 {
                   label: "Delete Completed Todos",
-                  onPress: deleteCompleted,
+                  onPress: () => {
+                    dispatch({ type: ActionType.RemoveCompleted });
+                  },
                 },
               ]
             : []
         }
       >
-        {`Total Todos: ${todos.length}, Total Incomplete Todos: ${
-          todos.filter((todo) => !todo.iscomplete).length
+        {`Total Todos: ${state.todos.length}, Total Incomplete Todos: ${
+          state.todos.filter((todo) => !todo.iscomplete).length
         }`}
       </Banner>
-      {todos.length === 0 ? (
+      {state.todos.length === 0 ? (
         <View
           style={{
             justifyContent: "center",
@@ -226,7 +197,7 @@ export default function App() {
           </View>
 
           <FlatList
-            data={searchedTodos}
+            data={state.searchedTodos}
             keyExtractor={(item) => String((item as Todo).id)}
             renderItem={renderItem}
             ItemSeparatorComponent={() => <Divider />}
@@ -240,7 +211,13 @@ export default function App() {
         </>
       )}
 
-      <InputDialog isVisible={visible} onDismiss={hideDialog} onAdd={onAdd} />
+      <InputDialog
+        isVisible={visible}
+        onDismiss={hideDialog}
+        onAdd={(todo) => {
+          dispatch({ type: ActionType.Add, payload: todo });
+        }}
+      />
 
       <FAB style={styles.fab} icon="plus" onPress={showDialog} />
       <Snackbar
@@ -249,7 +226,7 @@ export default function App() {
         action={{
           label: "Undo",
           onPress: () => {
-            undoTodo(delTodo);
+            dispatch({ type: ActionType.Undo });
           },
         }}
       >
