@@ -25,6 +25,7 @@ import {
   withTheme,
 } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { TodosProvider, TodosContext } from "./TodosContext";
 
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
@@ -157,7 +158,6 @@ export default function App() {
     setTodos((prevTodos) => prevTodos.filter((todo) => !todo.iscomplete));
   const toggleBanner = () => setShowBanner((prevShow) => !prevShow);
   const onDismissSnackBar = () => setVisibleSnackbar(false);
-  const renderContent = () => <Title>Hello</Title>;
   return (
     <Provider theme={theme}>
       <Appbar.Header>
