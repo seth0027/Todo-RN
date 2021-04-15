@@ -27,11 +27,10 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TodosContext, ActionType } from "./TodosContext";
 
-import Swipeable from "react-native-gesture-handler/Swipeable";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
 
 import { Todo } from "./models/Todo";
-import BottomSheetBehavior from "reanimated-bottom-sheet";
+import { TodoItem } from "./screens/TodoItem";
 
 const theme = {
   ...DefaultTheme,
@@ -92,38 +91,15 @@ export default function App() {
   };
 
   const completeTodo = (todo: Todo) => {
-    if (!todo.iscomplete) {
-      dispatch({ type: ActionType.Toggle, payload: todo.id });
-    }
+    dispatch({ type: ActionType.Toggle, payload: todo.id });
   };
 
   const renderItem: ListRenderItem<Todo> = ({ item }) => (
-    <Swipeable
-      renderLeftActions={(a1, a2) => (
-        <RenderLeftActions
-          onPress={() => {
-            completeTodo(item);
-          }}
-        />
-      )}
-      renderRightActions={(a1, a2) => (
-        <RenderRightActions
-          onPress={() => {
-            deleteTodo(item);
-          }}
-        />
-      )}
-      overshootLeft={false}
-    >
-      <Card>
-        <Card.Content>
-          <Title>{item.text}</Title>
-          <Subheading>
-            {item.iscomplete ? "Completed" : "Incomplete"}
-          </Subheading>
-        </Card.Content>
-      </Card>
-    </Swipeable>
+    <TodoItem
+      item={item}
+      onCompletePress={completeTodo}
+      onDeletePress={deleteTodo}
+    />
   );
   const toggleBanner = () => setShowBanner((prevShow) => !prevShow);
   const onDismissSnackBar = () => setVisibleSnackbar(false);
@@ -235,45 +211,6 @@ export default function App() {
     </Provider>
   );
 }
-interface ActionsProps {
-  onPress: () => void;
-}
-
-const RenderLeftActions = ({ onPress }: ActionsProps) => {
-  const { colors } = useTheme();
-  return (
-    <Button
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: colors.accent,
-      }}
-      icon="check"
-      onPress={onPress}
-      labelStyle={{ color: colors.text }}
-    >
-      Complete
-    </Button>
-  );
-};
-
-const RenderRightActions = ({ onPress }: ActionsProps) => {
-  const { colors } = useTheme();
-  return (
-    <Button
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: colors.error,
-      }}
-      labelStyle={{ color: colors.surface }}
-      icon="delete"
-      onPress={onPress}
-    >
-      Delete
-    </Button>
-  );
-};
 
 interface InputProps {
   isVisible: boolean;
