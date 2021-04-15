@@ -31,6 +31,7 @@ import { FlatList, ScrollView } from "react-native-gesture-handler";
 
 import { Todo } from "./models/Todo";
 import { TodoItem } from "./screens/TodoItem";
+import { InputDialog } from "./screens/InputDialog";
 
 const theme = {
   ...DefaultTheme,
@@ -209,44 +210,6 @@ export default function App() {
         Restore the Todo?
       </Snackbar>
     </Provider>
-  );
-}
-
-interface InputProps {
-  isVisible: boolean;
-  onDismiss: () => void;
-  onAdd: (arg0: Todo) => void;
-}
-function InputDialog({ isVisible, onDismiss, onAdd }: InputProps) {
-  const [todo, setTodo] = React.useState<string>("");
-
-  return (
-    <Dialog visible={isVisible} onDismiss={onDismiss}>
-      <Dialog.Title>
-        <Title>Add</Title>
-      </Dialog.Title>
-      <Dialog.Content>
-        <TextInput
-          style={{ backgroundColor: "transparent" }}
-          label="Todo"
-          value={todo}
-          onChangeText={(todo) => setTodo(todo)}
-        />
-      </Dialog.Content>
-      <Dialog.Actions>
-        <Button onPress={onDismiss}>Cancel</Button>
-        <Button
-          onPress={() => {
-            onAdd(new Todo(todo.trim()));
-            setTodo("");
-            onDismiss();
-          }}
-          disabled={todo.trim().length === 0}
-        >
-          Add
-        </Button>
-      </Dialog.Actions>
-    </Dialog>
   );
 }
 
