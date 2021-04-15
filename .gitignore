@@ -63,3 +63,11 @@ buck-out/
 # Expo
 .expo/*
 web-build/
+
+# @generated: @expo/electron-adapter@0.0.53
+/.expo/*
+# Expo Web
+/web-build/*
+# electron-webpack
+/dist
+# @end @expo/electron-adapter

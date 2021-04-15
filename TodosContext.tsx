@@ -43,12 +43,6 @@ export enum ActionType {
 }
 
 const reducer = (state: State, action: Action): State => {
-  console.log(
-    "Add dispatcher called searched, Todos: ",
-    state.searchedTodos,
-    "Action: ",
-    action.type
-  );
   switch (action.type) {
     case ActionType.Add:
       {

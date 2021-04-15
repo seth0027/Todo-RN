@@ -33,16 +33,6 @@ import { Todo } from "./models/Todo";
 import { TodoItem } from "./screens/TodoItem";
 import { InputDialog } from "./screens/InputDialog";
 
-const theme = {
-  ...DefaultTheme,
-  roundness: 2,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "#3498db",
-    accent: "#f1c40f",
-  },
-};
-
 const chipTypes = ["All", "Incomplete", "Completed"];
 
 export default function App() {
@@ -51,6 +41,7 @@ export default function App() {
   const { state, dispatch } = React.useContext(TodosContext);
   const [showBanner, setShowBanner] = React.useState<boolean>(false);
   const [visibleSnackBar, setVisibleSnackbar] = React.useState(false);
+  const { colors } = useTheme();
 
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
@@ -105,7 +96,7 @@ export default function App() {
   const toggleBanner = () => setShowBanner((prevShow) => !prevShow);
   const onDismissSnackBar = () => setVisibleSnackbar(false);
   return (
-    <Provider theme={theme}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Appbar.Header>
         <Appbar.Content
           title="Todos"
@@ -209,7 +200,7 @@ export default function App() {
       >
         Restore the Todo?
       </Snackbar>
-    </Provider>
+    </View>
   );
 }
 
