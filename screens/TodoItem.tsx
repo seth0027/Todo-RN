@@ -25,6 +25,7 @@ export const TodoItem = ({
   onDeletePress,
 }: TodoItemProps) => (
   <Swipeable
+    containerStyle={{ marginVertical: 4 }}
     renderLeftActions={(a1, a2) => (
       <RenderLeftActions
         onPress={() => {
@@ -55,10 +56,13 @@ export const TodoItem = ({
             />
           )}
           <View style={{ flexDirection: "column" }}>
-            <Title>{item.text}</Title>
-            <Subheading>
-              {item.iscomplete ? "Completed" : "Incomplete"}
-            </Subheading>
+            <Title
+              style={{
+                textDecorationLine: item.iscomplete ? "line-through" : "none",
+              }}
+            >
+              {item.text}
+            </Title>
           </View>
           {isWeb && (
             <RenderRightActions
